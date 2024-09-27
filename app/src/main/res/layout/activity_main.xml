@@ -57,7 +57,12 @@
         android:id="@+id/rv_list_category"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/category_expense"
+        app:layout_constraintTop_toBottomOf="@+id/category_expense"
         tools:listitem="@layout/item_list_category">
 
 
