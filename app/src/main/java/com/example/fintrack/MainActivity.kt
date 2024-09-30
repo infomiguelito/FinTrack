@@ -18,6 +18,49 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        val rv_List_Category = findViewById<RecyclerView>(R.id.rv_list_category)
+        val rv_List_Expense = findViewById<RecyclerView>(R.id.rv_list_expense)
 
     }
 }
+
+val categories = listOf(
+    CategoryUiData(
+        "KEY"
+    ),
+    CategoryUiData(
+        "FAMILY-CLOTHES"
+    ),
+    CategoryUiData(
+        "INTERNET"
+    ),
+    CategoryUiData(
+        "WATER"
+    ),
+    CategoryUiData(
+        "LIGHT"
+    )
+)
+
+val expenses = listOf(
+    ExpensesUiData(
+        "KEY",
+        "-115.56"
+    ),
+    ExpensesUiData(
+        "FAMILY-CLOTHES ",
+        "-354.00"
+    ),
+    ExpensesUiData(
+        "INTERNET",
+        "-98.99"
+    ),
+    ExpensesUiData(
+        "WATER",
+        "-245.86"
+    ),
+    ExpensesUiData(
+        "LIGHT",
+        "-189.58"
+    )
+)
