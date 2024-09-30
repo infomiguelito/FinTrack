@@ -70,12 +70,12 @@
     </androidx.recyclerview.widget.RecyclerView>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginTop="16dp"
         android:id="@+id/rv_list_expense"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rv_list_category"
@@ -92,7 +92,8 @@
         android:layout_marginStart="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@android:drawable/ic_dialog_dialer" />
+        app:srcCompat="@android:drawable/ic_dialog_dialer"
+        app:tint="@color/green" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
