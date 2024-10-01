@@ -21,24 +21,59 @@ class MainActivity : AppCompatActivity() {
         val rv_List_Category = findViewById<RecyclerView>(R.id.rv_list_category)
         val rv_List_Expense = findViewById<RecyclerView>(R.id.rv_list_expense)
 
+        val categoryAdapter = CategoryListAdapter()
+        val expensesAdapter = ExpensesListAdapter()
+
+        categoryAdapter.setOnClickListener { selected ->
+            val categoryTemp = categories.map { item ->
+                when {
+                    item.name == selected.name && !item.isSelect -> item.copy(isSelect = true)
+                    item.name == selected.name && item.isSelect -> item.copy(isSelect = false)
+                    else -> item
+                }
+            }
+            val expensesTemp =
+                if (selected.name != "ALL") {
+                    expenses.filter { it.category == selected.name }
+                } else {
+                    expenses
+                }
+            expensesAdapter.submitList(expensesTemp)
+            categoryAdapter.submitList(categoryTemp)
+        }
+        rv_List_Category.adapter = categoryAdapter
+        categoryAdapter.submitList(categories)
+        rv_List_Expense.adapter = expensesAdapter
+        expensesAdapter.submitList(expenses)
+
+
     }
 }
 
 val categories = listOf(
     CategoryUiData(
-        "KEY"
+        "ALL",
+        isSelect = false
     ),
     CategoryUiData(
-        "FAMILY-CLOTHES"
+        "KEY",
+        isSelect = false
     ),
     CategoryUiData(
-        "INTERNET"
+        "FAMILY-CLOTHES",
+        isSelect = false
     ),
     CategoryUiData(
-        "WATER"
+        "INTERNET",
+        isSelect = false
     ),
     CategoryUiData(
-        "LIGHT"
+        "WATER",
+        isSelect = false
+    ),
+    CategoryUiData(
+        "LIGHT",
+        isSelect = false
     )
 )
 
@@ -48,7 +83,7 @@ val expenses = listOf(
         "-115.56"
     ),
     ExpensesUiData(
-        "FAMILY-CLOTHES ",
+        "FAMILY-CLOTHES",
         "-354.00"
     ),
     ExpensesUiData(
