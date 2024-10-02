@@ -7,17 +7,26 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 
 class MainActivity : AppCompatActivity() {
+
+    private val db by lazy{ Room.databaseBuilder(
+        applicationContext,
+        FinTrackDataBase::class.java,"database-fin-track"
+     ).build()
+    }
+
+    private val categoryDao by lazy {
+        db.getCategoryDao()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+
+
+
         val rv_List_Category = findViewById<RecyclerView>(R.id.rv_list_category)
         val rv_List_Expense = findViewById<RecyclerView>(R.id.rv_list_expense)
 
@@ -27,8 +36,8 @@ class MainActivity : AppCompatActivity() {
         categoryAdapter.setOnClickListener { selected ->
             val categoryTemp = categories.map { item ->
                 when {
-                    item.name == selected.name && !item.isSelect -> item.copy(isSelect = true)
-                    item.name == selected.name && item.isSelect -> item.copy(isSelect = false)
+                    item.name == selected.name && !item.isSelected -> item.copy(isSelected = true)
+                    item.name == selected.name && item.isSelected-> item.copy(isSelected = false)
                     else -> item
                 }
             }
@@ -48,32 +57,46 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+
+    private fun insertDefaultCategory(){
+        val categoriesEntity = categories.map {
+            CategoryEntity(
+                name = it.name,
+                isSelected = it.isSelected
+            )
+        }
+
+categoryDao.insertAll(categoriesEntity)
+    }
+
+
+
 }
 
 val categories = listOf(
     CategoryUiData(
         "ALL",
-        isSelect = false
+        isSelected = false
     ),
     CategoryUiData(
         "KEY",
-        isSelect = false
+        isSelected = false
     ),
     CategoryUiData(
         "FAMILY-CLOTHES",
-        isSelect = false
+        isSelected = false
     ),
     CategoryUiData(
         "INTERNET",
-        isSelect = false
+        isSelected = false
     ),
     CategoryUiData(
         "WATER",
-        isSelect = false
+        isSelected = false
     ),
     CategoryUiData(
         "LIGHT",
-        isSelect = false
+        isSelected = false
     )
 )
 
