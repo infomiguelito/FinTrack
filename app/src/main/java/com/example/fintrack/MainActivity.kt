@@ -8,6 +8,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
+        insertDefaultCategory()
 
         val rv_List_Category = findViewById<RecyclerView>(R.id.rv_list_category)
         val rv_List_Expense = findViewById<RecyclerView>(R.id.rv_list_expense)
@@ -51,7 +55,8 @@ class MainActivity : AppCompatActivity() {
             categoryAdapter.submitList(categoryTemp)
         }
         rv_List_Category.adapter = categoryAdapter
-        categoryAdapter.submitList(categories)
+        getCategoriesFromDataBase(categoryAdapter)
+
         rv_List_Expense.adapter = expensesAdapter
         expensesAdapter.submitList(expenses)
 
@@ -66,11 +71,25 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-categoryDao.insertAll(categoriesEntity)
+        GlobalScope.launch (Dispatchers.IO){
+            categoryDao.insertAll(categoriesEntity)
+        }
     }
 
+    private fun getCategoriesFromDataBase(adapter: CategoryListAdapter){
+        GlobalScope.launch (Dispatchers.IO){
+            val categoriesFromDb: List<CategoryEntity> = categoryDao.getAll()
+            val categoriesUiData = categoriesFromDb.map {
+                CategoryUiData(
+                    name = it.name,
+                    isSelected = it.isSelected
+                )
 
+            }
+            adapter.submitList(categoriesUiData)
+        }
 
+    }
 }
 
 val categories = listOf(

@@ -2,6 +2,7 @@ package com.example.fintrack
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 
@@ -10,6 +11,6 @@ interface CategoryDao {
     @Query("Select * From categoryentity" )
     fun getAll() : List<CategoryEntity>
 
-    @Insert()
-    fun insertAll(vararg categoryEntity : List<CategoryEntity>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll( categoryEntity: List<CategoryEntity>)
 }
