@@ -11,6 +11,7 @@ import androidx.room.Room
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlin.math.E
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,12 +25,14 @@ class MainActivity : AppCompatActivity() {
         db.getCategoryDao()
     }
 
+    private val expensesDao by lazy {
+        db.getExpensesDao()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
-        insertDefaultCategory()
 
         val rv_List_Category = findViewById<RecyclerView>(R.id.rv_list_category)
         val rv_List_Expense = findViewById<RecyclerView>(R.id.rv_list_expense)
@@ -38,43 +41,33 @@ class MainActivity : AppCompatActivity() {
         val expensesAdapter = ExpensesListAdapter()
 
         categoryAdapter.setOnClickListener { selected ->
-            val categoryTemp = categories.map { item ->
-                when {
-                    item.name == selected.name && !item.isSelected -> item.copy(isSelected = true)
-                    item.name == selected.name && item.isSelected-> item.copy(isSelected = false)
-                    else -> item
-                }
-            }
-            val expensesTemp =
-                if (selected.name != "ALL") {
-                    expenses.filter { it.category == selected.name }
-                } else {
-                    expenses
-                }
-            expensesAdapter.submitList(expensesTemp)
-            categoryAdapter.submitList(categoryTemp)
+//            val categoryTemp = categories.map { item ->
+//                when {
+//                    item.name == selected.name && !item.isSelected -> item.copy(isSelected = true)
+//                    item.name == selected.name && item.isSelected-> item.copy(isSelected = false)
+//                    else -> item
+//                }
+//            }
+//            val expensesTemp =
+//                if (selected.name != "ALL") {
+//                    expenses.filter { it.category == selected.name }
+//                } else {
+//                    expenses
+//                }
+//            expensesAdapter.submitList(expensesTemp)
+//            categoryAdapter.submitList(categoryTemp)
         }
         rv_List_Category.adapter = categoryAdapter
         getCategoriesFromDataBase(categoryAdapter)
 
         rv_List_Expense.adapter = expensesAdapter
-        expensesAdapter.submitList(expenses)
-
+        getExpensesFromDataBase(expensesAdapter)
 
     }
 
-    private fun insertDefaultCategory(){
-        val categoriesEntity = categories.map {
-            CategoryEntity(
-                name = it.name,
-                isSelected = it.isSelected
-            )
-        }
 
-        GlobalScope.launch (Dispatchers.IO){
-            categoryDao.insertAll(categoriesEntity)
-        }
-    }
+
+
 
     private fun getCategoriesFromDataBase(adapter: CategoryListAdapter){
         GlobalScope.launch (Dispatchers.IO){
@@ -90,54 +83,22 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+    private fun getExpensesFromDataBase(adapter: ExpensesListAdapter){
+        GlobalScope.launch(Dispatchers.IO){
+            val expensesFromDb : List<ExpensesEntity> = expensesDao.getAll()
+            val expensesUiData = expensesFromDb.map {
+                ExpensesUiData(
+
+                    category = it.category,
+                    name = it.name
+                )
+            }
+
+            adapter.submitList(expensesUiData)
+        }
+    }
 }
 
-val categories = listOf(
-    CategoryUiData(
-        "ALL",
-        isSelected = false
-    ),
-    CategoryUiData(
-        "KEY",
-        isSelected = false
-    ),
-    CategoryUiData(
-        "FAMILY-CLOTHES",
-        isSelected = false
-    ),
-    CategoryUiData(
-        "INTERNET",
-        isSelected = false
-    ),
-    CategoryUiData(
-        "WATER",
-        isSelected = false
-    ),
-    CategoryUiData(
-        "LIGHT",
-        isSelected = false
-    )
-)
 
-val expenses = listOf(
-    ExpensesUiData(
-        "KEY",
-        "-115.56"
-    ),
-    ExpensesUiData(
-        "FAMILY-CLOTHES",
-        "-354.00"
-    ),
-    ExpensesUiData(
-        "INTERNET",
-        "-98.99"
-    ),
-    ExpensesUiData(
-        "WATER",
-        "-245.86"
-    ),
-    ExpensesUiData(
-        "LIGHT",
-        "-189.58"
-    )
-)
+
