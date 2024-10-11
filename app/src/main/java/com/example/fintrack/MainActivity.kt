@@ -3,11 +3,13 @@ package com.example.fintrack
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.test.isSelected
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -15,10 +17,14 @@ import kotlin.math.E
 
 class MainActivity : AppCompatActivity() {
 
-    private val db by lazy{ Room.databaseBuilder(
-        applicationContext,
-        FinTrackDataBase::class.java,"database-fin-track"
-     ).build()
+    private var categories = listOf<CategoryUiData>()
+    private var expenses = listOf<ExpensesUiData>()
+
+    private val db by lazy {
+        Room.databaseBuilder(
+            applicationContext,
+            FinTrackDataBase::class.java, "database-fin-track"
+        ).build()
     }
 
     private val categoryDao by lazy {
@@ -41,21 +47,30 @@ class MainActivity : AppCompatActivity() {
         val expensesAdapter = ExpensesListAdapter()
 
         categoryAdapter.setOnClickListener { selected ->
-//            val categoryTemp = categories.map { item ->
-//                when {
-//                    item.name == selected.name && !item.isSelected -> item.copy(isSelected = true)
-//                    item.name == selected.name && item.isSelected-> item.copy(isSelected = false)
-//                    else -> item
-//                }
-//            }
-//            val expensesTemp =
-//                if (selected.name != "ALL") {
-//                    expenses.filter { it.category == selected.name }
-//                } else {
-//                    expenses
-//                }
-//            expensesAdapter.submitList(expensesTemp)
-//            categoryAdapter.submitList(categoryTemp)
+            if (selected.name == "+") {
+                Snackbar.make(rv_List_Expense, "+ foi selecionado", Snackbar.LENGTH_LONG).show()
+            } else {
+                val categoryTemp = categories.map { item ->
+                    when {
+                        item.name == selected.name && !item.isSelected -> item.copy(
+                            isSelected = true
+                        )
+
+                        item.name == selected.name && item.isSelected -> item.copy(isSelected = false)
+                        else -> item
+                    }
+                }
+                val expensesTemp =
+                    if (selected.name != "ALL") {
+                        expenses.filter { it.category == selected.name }
+                    } else {
+                        expenses
+                    }
+                expensesAdapter.submitList(expensesTemp)
+                categoryAdapter.submitList(categoryTemp)
+
+
+            }
         }
         rv_List_Category.adapter = categoryAdapter
         getCategoriesFromDataBase(categoryAdapter)
@@ -66,11 +81,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-
-
-    private fun getCategoriesFromDataBase(adapter: CategoryListAdapter){
-        GlobalScope.launch (Dispatchers.IO){
+    private fun getCategoriesFromDataBase(adapter: CategoryListAdapter) {
+        GlobalScope.launch(Dispatchers.IO) {
             val categoriesFromDb: List<CategoryEntity> = categoryDao.getAll()
             val categoriesUiData = categoriesFromDb.map {
                 CategoryUiData(
@@ -79,14 +91,26 @@ class MainActivity : AppCompatActivity() {
                 )
 
             }
-            adapter.submitList(categoriesUiData)
+                .toMutableList()
+
+            categoriesUiData.add(
+                CategoryUiData(
+                    name = "+",
+                    isSelected = false
+                )
+            )
+            GlobalScope.launch(Dispatchers.IO) {
+
+                categories = categoriesUiData
+                adapter.submitList(categoriesUiData)
+            }
         }
 
     }
 
-    private fun getExpensesFromDataBase(adapter: ExpensesListAdapter){
-        GlobalScope.launch(Dispatchers.IO){
-            val expensesFromDb : List<ExpensesEntity> = expensesDao.getAll()
+    private fun getExpensesFromDataBase(adapter: ExpensesListAdapter) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val expensesFromDb: List<ExpensesEntity> = expensesDao.getAll()
             val expensesUiData = expensesFromDb.map {
                 ExpensesUiData(
 
@@ -94,8 +118,10 @@ class MainActivity : AppCompatActivity() {
                     name = it.name
                 )
             }
-
-            adapter.submitList(expensesUiData)
+            GlobalScope.launch(Dispatchers.IO) {
+                expenses = expensesUiData
+                adapter.submitList(expensesUiData)
+            }
         }
     }
 }
