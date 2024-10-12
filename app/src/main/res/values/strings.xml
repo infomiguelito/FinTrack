@@ -4,4 +4,5 @@
     <string name="expenses_totals">Expenses Totals</string>
     <string name="category_expense">Category expense</string>
     <string name="criar_categoria">Create category</string>
+    <string name="category_hint">Enter the category</string>
 </resources>
