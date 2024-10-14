@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -19,6 +20,8 @@ class MainActivity : AppCompatActivity() {
 
     private var categories = listOf<CategoryUiData>()
     private var expenses = listOf<ExpensesUiData>()
+    private val categoryAdapter = CategoryListAdapter()
+
 
     private val db by lazy {
         Room.databaseBuilder(
@@ -42,14 +45,20 @@ class MainActivity : AppCompatActivity() {
 
         val rv_List_Category = findViewById<RecyclerView>(R.id.rv_list_category)
         val rv_List_Expense = findViewById<RecyclerView>(R.id.rv_list_expense)
+        val fab_Create_Expensas = findViewById<FloatingActionButton>(R.id.fab_create_expense)
 
-        val categoryAdapter = CategoryListAdapter()
         val expensesAdapter = ExpensesListAdapter()
 
         categoryAdapter.setOnClickListener { selected ->
             if (selected.name == "+") {
-                val createCategoryBottomSheet = CreateCategoryBottomSheet()
-                createCategoryBottomSheet.show(supportFragmentManager,"createCategoryBottomSheet")
+                val createCategoryBottomSheet = CreateCategoryBottomSheet { categoryName ->
+                    val categoryEntity = CategoryEntity(
+                        name = categoryName,
+                        isSelected = false
+                    )
+                    insertCategory(categoryEntity)
+                }
+                createCategoryBottomSheet.show(supportFragmentManager, "createCategoryBottomSheet")
 
             } else {
                 val categoryTemp = categories.map { item ->
@@ -75,7 +84,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
         rv_List_Category.adapter = categoryAdapter
-        getCategoriesFromDataBase(categoryAdapter)
+        GlobalScope.launch(Dispatchers.IO) {
+            getCategoriesFromDataBase()
+        }
 
         rv_List_Expense.adapter = expensesAdapter
         getExpensesFromDataBase(expensesAdapter)
@@ -83,30 +94,30 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun getCategoriesFromDataBase(adapter: CategoryListAdapter) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val categoriesFromDb: List<CategoryEntity> = categoryDao.getAll()
-            val categoriesUiData = categoriesFromDb.map {
-                CategoryUiData(
-                    name = it.name,
-                    isSelected = it.isSelected
-                )
+    private fun getCategoriesFromDataBase() {
 
-            }
-                .toMutableList()
-
-            categoriesUiData.add(
-                CategoryUiData(
-                    name = "+",
-                    isSelected = false
-                )
+        val categoriesFromDb: List<CategoryEntity> = categoryDao.getAll()
+        val categoriesUiData = categoriesFromDb.map {
+            CategoryUiData(
+                name = it.name,
+                isSelected = it.isSelected
             )
-            GlobalScope.launch(Dispatchers.IO) {
 
-                categories = categoriesUiData
-                adapter.submitList(categoriesUiData)
-            }
         }
+            .toMutableList()
+
+        categoriesUiData.add(
+            CategoryUiData(
+                name = "+",
+                isSelected = false
+            )
+        )
+        GlobalScope.launch(Dispatchers.IO) {
+
+            categories = categoriesUiData
+            categoryAdapter.submitList(categoriesUiData)
+        }
+
 
     }
 
@@ -126,6 +137,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+
+    private fun insertCategory(categoryEntity: CategoryEntity) {
+
+        GlobalScope.launch(Dispatchers.IO) {
+            categoryDao.inset(categoryEntity)
+            getCategoriesFromDataBase()
+
+        }
+    }
+
 }
 
 

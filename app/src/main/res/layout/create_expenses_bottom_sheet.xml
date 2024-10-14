@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
         android:id="@+id/imageView"
@@ -18,10 +18,10 @@
         />
 
     <TextView
-        android:id="@+id/tv_title"
+        android:id="@+id/tv_title_expenses"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/criar_categoria"
+        android:text="@string/insert_expenses"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:textSize="23sp"
@@ -29,39 +29,39 @@
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toTopOf="parent" />
 
-
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout"
+    <EditText
+        android:id="@+id/edt_expenses_category"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:boxStrokeColor="@color/dark"
-        app:hintTextColor="@color/dark"
-        app:cursorErrorColor="@color/dark"
-        app:cursorColor="@color/dark"
+        android:hint="Ex: Light"
+        android:inputType="text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title">
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_expenses" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/tie_enter_category"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/category_hint" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <Button
-        android:id="@+id/btn_create_category"
+    <EditText
+        android:id="@+id/edt_expenses_number"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create"
         android:layout_margin="16dp"
+        android:hint="Ex: 257.70"
+        android:inputType="numberDecimal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edt_expenses_category" />
+
+    <Button
+        android:id="@+id/btn_create_expenses"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Add"
         android:backgroundTint="@color/green_clear"
         android:textColor="@color/dark"
-        app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
-        app:layout_constraintStart_toStartOf="@+id/textInputLayout"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edt_expenses_number" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
