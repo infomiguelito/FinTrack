@@ -43,9 +43,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        val rv_List_Category = findViewById<RecyclerView>(R.id.rv_list_category)
-        val rv_List_Expense = findViewById<RecyclerView>(R.id.rv_list_expense)
-        val fab_Create_Expensas = findViewById<FloatingActionButton>(R.id.fab_create_expense)
+        val rvListCategory = findViewById<RecyclerView>(R.id.rv_list_category)
+        val rvListExpense = findViewById<RecyclerView>(R.id.rv_list_expense)
+        val fabCreateExpenses = findViewById<FloatingActionButton>(R.id.fab_create_expense)
+
+        fabCreateExpenses.setOnClickListener {
+            val createExpensesBottomSheet = CreateExpensesBottomSheet(
+                categories
+            ){expensesToBeCreate ->
+
+            }
+            createExpensesBottomSheet.show(supportFragmentManager,"createExpensesBottomSheet")
+        }
 
         val expensesAdapter = ExpensesListAdapter()
 
@@ -83,12 +92,12 @@ class MainActivity : AppCompatActivity() {
 
             }
         }
-        rv_List_Category.adapter = categoryAdapter
+        rvListCategory.adapter = categoryAdapter
         GlobalScope.launch(Dispatchers.IO) {
             getCategoriesFromDataBase()
         }
 
-        rv_List_Expense.adapter = expensesAdapter
+        rvListExpense.adapter = expensesAdapter
         getExpensesFromDataBase(expensesAdapter)
 
     }
