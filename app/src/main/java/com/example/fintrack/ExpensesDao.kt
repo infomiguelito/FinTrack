@@ -12,4 +12,8 @@ interface ExpensesDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(expensesEntity: List<ExpensesEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insetAll(expensesEntity: ExpensesEntity)
+
 }

@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity() {
     private var categories = listOf<CategoryUiData>()
     private var expenses = listOf<ExpensesUiData>()
     private val categoryAdapter = CategoryListAdapter()
+    private val expensesAdapter = ExpensesListAdapter()
 
 
     private val db by lazy {
@@ -50,13 +51,17 @@ class MainActivity : AppCompatActivity() {
         fabCreateExpenses.setOnClickListener {
             val createExpensesBottomSheet = CreateExpensesBottomSheet(
                 categories
-            ){expensesToBeCreate ->
+            ) { expensesToBeCreate ->
+                val ExpensesToBeInsert = ExpensesEntity(
+                    name = expensesToBeCreate.name,
+                    category = expensesToBeCreate.category
+                )
+                insertExpenses(ExpensesToBeInsert)
 
             }
-            createExpensesBottomSheet.show(supportFragmentManager,"createExpensesBottomSheet")
+            createExpensesBottomSheet.show(supportFragmentManager, "createExpensesBottomSheet")
         }
 
-        val expensesAdapter = ExpensesListAdapter()
 
         categoryAdapter.setOnClickListener { selected ->
             if (selected.name == "+") {
@@ -98,7 +103,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         rvListExpense.adapter = expensesAdapter
-        getExpensesFromDataBase(expensesAdapter)
+        GlobalScope.launch(Dispatchers.IO) {
+            getExpensesFromDataBase()
+        }
 
     }
 
@@ -130,20 +137,18 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun getExpensesFromDataBase(adapter: ExpensesListAdapter) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val expensesFromDb: List<ExpensesEntity> = expensesDao.getAll()
-            val expensesUiData = expensesFromDb.map {
-                ExpensesUiData(
+    private fun getExpensesFromDataBase() {
+        val expensesFromDb: List<ExpensesEntity> = expensesDao.getAll()
+        val expensesUiData = expensesFromDb.map {
+            ExpensesUiData(
 
-                    category = it.category,
-                    name = it.name
-                )
-            }
-            GlobalScope.launch(Dispatchers.IO) {
-                expenses = expensesUiData
-                adapter.submitList(expensesUiData)
-            }
+                category = it.category,
+                name = it.name
+            )
+        }
+        GlobalScope.launch(Dispatchers.IO) {
+            expenses = expensesUiData
+            expensesAdapter.submitList(expensesUiData)
         }
     }
 
@@ -153,7 +158,13 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             categoryDao.inset(categoryEntity)
             getCategoriesFromDataBase()
+        }
+    }
 
+    private fun insertExpenses(expensesEntity: ExpensesEntity) {
+        GlobalScope.launch(Dispatchers.IO) {
+            expensesDao.insetAll(expensesEntity)
+            getExpensesFromDataBase()
         }
     }
 
