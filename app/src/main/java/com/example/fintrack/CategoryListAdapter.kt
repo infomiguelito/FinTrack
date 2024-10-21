@@ -27,7 +27,7 @@ class CategoryListAdapter : ListAdapter<CategoryUiData, CategoryListAdapter.Cate
         private val tvCategory = view.findViewById<TextView>(R.id.tv_category)
         fun bind(category: CategoryUiData, onClick: (CategoryUiData) -> Unit) {
             tvCategory.text = category.name
-            tvCategory.isSelected = category.isSelect
+            tvCategory.isSelected = category.isSelected
             view.setOnClickListener {
                 onClick.invoke(category)
             }

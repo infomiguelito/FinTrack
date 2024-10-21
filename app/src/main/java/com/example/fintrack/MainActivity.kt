@@ -1,101 +1,178 @@
 package com.example.fintrack
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+
+    private var categories = listOf<CategoryUiData>()
+    private var expenses = listOf<ExpensesUiData>()
+    private val categoryAdapter = CategoryListAdapter()
+    private val expensesAdapter by lazy {
+        ExpensesListAdapter()
+    }
+
+
+    private val db by lazy {
+        Room.databaseBuilder(
+            applicationContext,
+            FinTrackDataBase::class.java, "database-fin-track-v2"
+        ).build()
+    }
+
+    private val categoryDao by lazy {
+        db.getCategoryDao()
+    }
+
+    private val expensesDao by lazy {
+        db.getExpensesDao()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-        val rv_List_Category = findViewById<RecyclerView>(R.id.rv_list_category)
-        val rv_List_Expense = findViewById<RecyclerView>(R.id.rv_list_expense)
 
-        val categoryAdapter = CategoryListAdapter()
-        val expensesAdapter = ExpensesListAdapter()
+
+        val rvListCategory = findViewById<RecyclerView>(R.id.rv_list_category)
+        val rvListExpense = findViewById<RecyclerView>(R.id.rv_list_expense)
+        val fabCreateExpenses = findViewById<FloatingActionButton>(R.id.fab_create_expense)
+
+        fabCreateExpenses.setOnClickListener {
+            createExpensesUpdateBottomSheet()
+        }
+
+        expensesAdapter.setOnClickListener { expenses ->
+            createExpensesUpdateBottomSheet(expenses)
+        }
 
         categoryAdapter.setOnClickListener { selected ->
-            val categoryTemp = categories.map { item ->
-                when {
-                    item.name == selected.name && !item.isSelect -> item.copy(isSelect = true)
-                    item.name == selected.name && item.isSelect -> item.copy(isSelect = false)
-                    else -> item
+            if (selected.name == "+") {
+                val createCategoryBottomSheet = CreateCategoryBottomSheet { categoryName ->
+                    val categoryEntity = CategoryEntity(
+                        name = categoryName,
+                        isSelected = false
+                    )
+                    insertCategory(categoryEntity)
                 }
+                createCategoryBottomSheet.show(supportFragmentManager, "createCategoryBottomSheet")
+
+            } else {
+                val categoryTemp = categories.map { item ->
+                    when {
+                        item.name == selected.name && !item.isSelected -> item.copy(
+                            isSelected = true
+                        )
+
+                        item.name == selected.name && item.isSelected -> item.copy(isSelected = false)
+                        else -> item
+                    }
+                }
+                val expensesTemp =
+                    if (selected.name != "ALL") {
+                        expenses.filter { it.category == selected.name }
+                    } else {
+                        expenses
+                    }
+                expensesAdapter.submitList(expensesTemp)
+                categoryAdapter.submitList(categoryTemp)
+
+
             }
-            val expensesTemp =
-                if (selected.name != "ALL") {
-                    expenses.filter { it.category == selected.name }
-                } else {
-                    expenses
-                }
-            expensesAdapter.submitList(expensesTemp)
-            categoryAdapter.submitList(categoryTemp)
         }
-        rv_List_Category.adapter = categoryAdapter
-        categoryAdapter.submitList(categories)
-        rv_List_Expense.adapter = expensesAdapter
-        expensesAdapter.submitList(expenses)
+        rvListCategory.adapter = categoryAdapter
+        GlobalScope.launch(Dispatchers.IO) {
+            getCategoriesFromDataBase()
+        }
+
+        rvListExpense.adapter = expensesAdapter
+
+
+        GlobalScope.launch(Dispatchers.IO) {
+            getExpensesFromDataBase()
+        }
+
+    }
+
+
+    private fun getCategoriesFromDataBase() {
+
+        val categoriesFromDb: List<CategoryEntity> = categoryDao.getAll()
+        val categoriesUiData = categoriesFromDb.map {
+            CategoryUiData(
+                name = it.name,
+                isSelected = it.isSelected
+            )
+
+        }
+            .toMutableList()
+
+        categoriesUiData.add(
+            CategoryUiData(
+                name = "+",
+                isSelected = false
+            )
+        )
+        GlobalScope.launch(Dispatchers.IO) {
+
+            categories = categoriesUiData
+            categoryAdapter.submitList(categoriesUiData)
+        }
 
 
     }
+
+    private fun getExpensesFromDataBase() {
+        val expensesFromDb: List<ExpensesEntity> = expensesDao.getAll()
+        val expensesUiData = expensesFromDb.map {
+            ExpensesUiData(
+                id = it.id,
+                category = it.category,
+                name = it.name
+            )
+        }
+        GlobalScope.launch(Dispatchers.IO) {
+            expenses = expensesUiData
+            expensesAdapter.submitList(expensesUiData)
+        }
+    }
+
+
+    private fun insertCategory(categoryEntity: CategoryEntity) {
+
+        GlobalScope.launch(Dispatchers.IO) {
+            categoryDao.inset(categoryEntity)
+            getCategoriesFromDataBase()
+        }
+    }
+
+    private fun insertExpenses(expensesEntity: ExpensesEntity) {
+        GlobalScope.launch(Dispatchers.IO) {
+            expensesDao.insetAll(expensesEntity)
+            getExpensesFromDataBase()
+        }
+    }
+
+    private fun createExpensesUpdateBottomSheet(expensesUiData: ExpensesUiData? = null){
+        val createExpensesBottomSheet = CreateOrUpdateExpensesBottomSheet(
+            expenses = expensesUiData,
+            categoryList = categories
+        ) { expensesToBeCreate ->
+            val ExpensesToBeInsert = ExpensesEntity(
+                name = expensesToBeCreate.name,
+                category = expensesToBeCreate.category
+            )
+            insertExpenses(ExpensesToBeInsert)
+
+        }
+        createExpensesBottomSheet.show(supportFragmentManager, "createExpensesBottomSheet")
+    }
 }
 
-val categories = listOf(
-    CategoryUiData(
-        "ALL",
-        isSelect = false
-    ),
-    CategoryUiData(
-        "KEY",
-        isSelect = false
-    ),
-    CategoryUiData(
-        "FAMILY-CLOTHES",
-        isSelect = false
-    ),
-    CategoryUiData(
-        "INTERNET",
-        isSelect = false
-    ),
-    CategoryUiData(
-        "WATER",
-        isSelect = false
-    ),
-    CategoryUiData(
-        "LIGHT",
-        isSelect = false
-    )
-)
 
-val expenses = listOf(
-    ExpensesUiData(
-        "KEY",
-        "-115.56"
-    ),
-    ExpensesUiData(
-        "FAMILY-CLOTHES",
-        "-354.00"
-    ),
-    ExpensesUiData(
-        "INTERNET",
-        "-98.99"
-    ),
-    ExpensesUiData(
-        "WATER",
-        "-245.86"
-    ),
-    ExpensesUiData(
-        "LIGHT",
-        "-189.58"
-    )
-)
+

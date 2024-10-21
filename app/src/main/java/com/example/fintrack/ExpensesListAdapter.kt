@@ -11,6 +11,12 @@ import androidx.recyclerview.widget.RecyclerView
 
 class ExpensesListAdapter:
     ListAdapter<ExpensesUiData, ExpensesListAdapter.ExpenseViewHolder>(ExpensesListAdapter) {
+        private lateinit var callback : (ExpensesUiData) ->Unit
+
+        fun setOnClickListener (onClick:(ExpensesUiData)-> Unit){
+            callback = onClick
+        }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExpenseViewHolder {
         val view =
             LayoutInflater.from(parent.context).inflate(R.layout.item_list_expense, parent, false)
@@ -18,14 +24,19 @@ class ExpensesListAdapter:
     }
     override fun onBindViewHolder(holder: ExpenseViewHolder, position: Int) {
         val category = getItem(position)
-        holder.bind(category)
+        holder.bind(category,callback)
     }
-    class ExpenseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class ExpenseViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         private val tvCategory = view.findViewById<TextView>(R.id.tv_category_name)
         private val tvTask = view.findViewById<TextView>(R.id.tv_task_name)
-        fun bind(task: ExpensesUiData) {
-            tvCategory.text = task.category
-            tvTask.text = task.name
+
+        fun bind(expenses: ExpensesUiData , callback: (ExpensesUiData) ->Unit) {
+            tvCategory.text = expenses.category
+            tvTask.text = expenses.name
+
+            view.setOnClickListener {
+                callback.invoke(expenses)
+            }
         }
     }
     companion object : DiffUtil.ItemCallback<ExpensesUiData>() {
