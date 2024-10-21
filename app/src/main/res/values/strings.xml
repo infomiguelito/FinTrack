@@ -6,4 +6,7 @@
     <string name="criar_categoria">Create category</string>
     <string name="category_hint">Enter the category</string>
     <string name="insert_expenses">Add expenses</string>
+    <string name="update_expenses">Update Expenses</string>
+    <string name="update">Update</string>
+    <string name="add_btn">Add</string>
 </resources>

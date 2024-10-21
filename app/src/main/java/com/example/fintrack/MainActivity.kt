@@ -1,33 +1,28 @@
 package com.example.fintrack
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.test.isSelected
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlin.math.E
 
 class MainActivity : AppCompatActivity() {
 
     private var categories = listOf<CategoryUiData>()
     private var expenses = listOf<ExpensesUiData>()
     private val categoryAdapter = CategoryListAdapter()
-    private val expensesAdapter = ExpensesListAdapter()
+    private val expensesAdapter by lazy {
+        ExpensesListAdapter()
+    }
 
 
     private val db by lazy {
         Room.databaseBuilder(
             applicationContext,
-            FinTrackDataBase::class.java, "database-fin-track"
+            FinTrackDataBase::class.java, "database-fin-track-v2"
         ).build()
     }
 
@@ -49,19 +44,12 @@ class MainActivity : AppCompatActivity() {
         val fabCreateExpenses = findViewById<FloatingActionButton>(R.id.fab_create_expense)
 
         fabCreateExpenses.setOnClickListener {
-            val createExpensesBottomSheet = CreateExpensesBottomSheet(
-                categories
-            ) { expensesToBeCreate ->
-                val ExpensesToBeInsert = ExpensesEntity(
-                    name = expensesToBeCreate.name,
-                    category = expensesToBeCreate.category
-                )
-                insertExpenses(ExpensesToBeInsert)
-
-            }
-            createExpensesBottomSheet.show(supportFragmentManager, "createExpensesBottomSheet")
+            createExpensesUpdateBottomSheet()
         }
 
+        expensesAdapter.setOnClickListener { expenses ->
+            createExpensesUpdateBottomSheet(expenses)
+        }
 
         categoryAdapter.setOnClickListener { selected ->
             if (selected.name == "+") {
@@ -103,6 +91,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         rvListExpense.adapter = expensesAdapter
+
+
         GlobalScope.launch(Dispatchers.IO) {
             getExpensesFromDataBase()
         }
@@ -141,7 +131,7 @@ class MainActivity : AppCompatActivity() {
         val expensesFromDb: List<ExpensesEntity> = expensesDao.getAll()
         val expensesUiData = expensesFromDb.map {
             ExpensesUiData(
-
+                id = it.id,
                 category = it.category,
                 name = it.name
             )
@@ -168,6 +158,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun createExpensesUpdateBottomSheet(expensesUiData: ExpensesUiData? = null){
+        val createExpensesBottomSheet = CreateOrUpdateExpensesBottomSheet(
+            expenses = expensesUiData,
+            categoryList = categories
+        ) { expensesToBeCreate ->
+            val ExpensesToBeInsert = ExpensesEntity(
+                name = expensesToBeCreate.name,
+                category = expensesToBeCreate.category
+            )
+            insertExpenses(ExpensesToBeInsert)
+
+        }
+        createExpensesBottomSheet.show(supportFragmentManager, "createExpensesBottomSheet")
+    }
 }
 
 
