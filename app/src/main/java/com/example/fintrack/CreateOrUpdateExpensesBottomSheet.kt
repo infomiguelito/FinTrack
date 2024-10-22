@@ -26,41 +26,13 @@ class CreateOrUpdateExpensesBottomSheet(
     ): View? {
         val view = inflater.inflate(R.layout.create_or_update_expenses_bottom_sheet, container, false)
 
+        var expensesCategory: String? = null
+        val categoryStr :List<String> = categoryList.map{it . name}
+
+
         val tvTitle = view.findViewById<TextView>(R.id.tv_title_expenses)
         val btnCreateExpenses = view.findViewById<Button>(R.id.btn_create_expenses)
         val edtExpensesNumber = view.findViewById<EditText>(R.id.edt_expenses_number)
-
-        if (expenses == null ){
-            tvTitle.setText(R.string.insert_expenses)
-            btnCreateExpenses.setText(R.string.add_btn)
-        } else {
-            tvTitle.setText(R.string.update_expenses)
-            btnCreateExpenses.setText(R.string.update)
-        }
-
-
-        var expensesCategory: String? = null
-
-        btnCreateExpenses.setOnClickListener {
-            val number = edtExpensesNumber.text.toString()
-
-            if (expensesCategory != null) {
-                onCreateClicked.invoke(
-                    ExpensesUiData(
-                        id = 0 ,
-                        name = number,
-                        category = requireNotNull(expensesCategory)
-                    )
-                )
-                dismiss()
-            } else {
-                Snackbar.make(btnCreateExpenses, "Please select a category", Snackbar.LENGTH_LONG).show()
-            }
-
-
-        }
-
-        val categoryStr :List<String> = categoryList.map{it . name}
 
         val spinner: Spinner = view.findViewById(R.id.category_list)
         ArrayAdapter(
@@ -87,6 +59,44 @@ class CreateOrUpdateExpensesBottomSheet(
             }
 
         }
+
+        if (expenses == null ){
+            tvTitle.setText(R.string.insert_expenses)
+            btnCreateExpenses.setText(R.string.add_btn)
+        } else {
+            tvTitle.setText(R.string.update_expenses)
+            btnCreateExpenses.setText(R.string.update)
+            edtExpensesNumber.setText(expenses.name)
+
+            val currentCategory = categoryList.first { it.name == expenses.category }
+            val index = categoryList.indexOf(currentCategory)
+            spinner.setSelection(index)
+        }
+
+
+
+
+        btnCreateExpenses.setOnClickListener {
+            val number = edtExpensesNumber.text.toString()
+
+            if (expensesCategory != null) {
+                onCreateClicked.invoke(
+                    ExpensesUiData(
+                        id = 0 ,
+                        name = number,
+                        category = requireNotNull(expensesCategory)
+                    )
+                )
+                dismiss()
+            } else {
+                Snackbar.make(btnCreateExpenses, "Please select a category", Snackbar.LENGTH_LONG).show()
+            }
+
+
+        }
+
+
+
         return view
     }
 }
