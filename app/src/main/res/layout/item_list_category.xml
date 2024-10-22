@@ -12,4 +12,4 @@
     android:paddingBottom="8dp"
     android:textColor="@drawable/filter_text_color"
     android:textStyle="bold"
-    tools:text="KEY" />
+    tools:text="STUDY" />
