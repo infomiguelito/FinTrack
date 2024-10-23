@@ -1,6 +1,7 @@
 package com.example.fintrack
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -14,6 +15,9 @@ interface ExpensesDao {
     fun insertAll(expensesEntity: List<ExpensesEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insetAll(expensesEntity: ExpensesEntity)
+    fun insertOrUpdate(expensesEntity: ExpensesEntity)
+
+    @Delete
+    fun delete (expensesEntity: ExpensesEntity)
 
 }

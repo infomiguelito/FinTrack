@@ -153,7 +153,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun insertExpenses(expensesEntity: ExpensesEntity) {
         GlobalScope.launch(Dispatchers.IO) {
-            expensesDao.insetAll(expensesEntity)
+            expensesDao.insertOrUpdate(expensesEntity)
+            getExpensesFromDataBase()
+        }
+    }
+    private fun deleteExpenses(expensesEntity: ExpensesEntity) {
+        GlobalScope.launch(Dispatchers.IO) {
+            expensesDao.delete(expensesEntity)
             getExpensesFromDataBase()
         }
     }
@@ -161,15 +167,34 @@ class MainActivity : AppCompatActivity() {
     private fun createExpensesUpdateBottomSheet(expensesUiData: ExpensesUiData? = null){
         val createExpensesBottomSheet = CreateOrUpdateExpensesBottomSheet(
             expenses = expensesUiData,
-            categoryList = categories
-        ) { expensesToBeCreate ->
-            val ExpensesToBeInsert = ExpensesEntity(
-                name = expensesToBeCreate.name,
-                category = expensesToBeCreate.category
-            )
-            insertExpenses(ExpensesToBeInsert)
+            categoryList = categories,
+            onCreateClicked = {
+                    expensesToBeCreate ->
+                val ExpensesToBeInsert = ExpensesEntity(
+                    name = expensesToBeCreate.name,
+                    category = expensesToBeCreate.category
+                )
+                insertExpenses(ExpensesToBeInsert)
+            },
+            onUpdateClicked = { expensesToBeUpdate ->
+                val ExpensesToBeUpdateInsert = ExpensesEntity(
+                    id = expensesToBeUpdate.id ,
+                    name = expensesToBeUpdate.name,
+                    category = expensesToBeUpdate.category
+                )
+                insertExpenses(ExpensesToBeUpdateInsert)
 
-        }
+            }, onDeleteClicked = { expensesToBeDelete ->
+                val ExpensesToBeUpdateDelete = ExpensesEntity(
+                    id = expensesToBeDelete.id ,
+                    name = expensesToBeDelete.name,
+                    category = expensesToBeDelete.category
+                )
+                deleteExpenses(ExpensesToBeUpdateDelete)
+
+            }
+
+        )
         createExpensesBottomSheet.show(supportFragmentManager, "createExpensesBottomSheet")
     }
 }

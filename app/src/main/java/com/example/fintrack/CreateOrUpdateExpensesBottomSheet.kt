@@ -1,6 +1,7 @@
 package com.example.fintrack
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,13 +11,16 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 
 class CreateOrUpdateExpensesBottomSheet(
     private val categoryList: List<CategoryUiData>,
     private val expenses:ExpensesUiData ? = null,
-    private val onCreateClicked: (ExpensesUiData) -> Unit
+    private val onCreateClicked: (ExpensesUiData) -> Unit,
+    private val onUpdateClicked: (ExpensesUiData) -> Unit,
+    private val onDeleteClicked: (ExpensesUiData) -> Unit,
 
 ) : BottomSheetDialogFragment() {
     override fun onCreateView(
@@ -31,7 +35,8 @@ class CreateOrUpdateExpensesBottomSheet(
 
 
         val tvTitle = view.findViewById<TextView>(R.id.tv_title_expenses)
-        val btnCreateExpenses = view.findViewById<Button>(R.id.btn_create_expenses)
+        val btnCreateOrUpdateExpenses = view.findViewById<Button>(R.id.btn_create_or_update_expenses)
+        val btnDeleteOrUpdateExpenses = view.findViewById<Button>(R.id.btn_delete_or_update_expenses)
         val edtExpensesNumber = view.findViewById<EditText>(R.id.edt_expenses_number)
 
         val spinner: Spinner = view.findViewById(R.id.category_list)
@@ -61,12 +66,14 @@ class CreateOrUpdateExpensesBottomSheet(
         }
 
         if (expenses == null ){
+            btnDeleteOrUpdateExpenses.isVisible= false
             tvTitle.setText(R.string.insert_expenses)
-            btnCreateExpenses.setText(R.string.add_btn)
+            btnCreateOrUpdateExpenses.setText(R.string.add_btn)
         } else {
             tvTitle.setText(R.string.update_expenses)
-            btnCreateExpenses.setText(R.string.update)
+            btnCreateOrUpdateExpenses.setText(R.string.update)
             edtExpensesNumber.setText(expenses.name)
+            btnDeleteOrUpdateExpenses.isVisible= true
 
             val currentCategory = categoryList.first { it.name == expenses.category }
             val index = categoryList.indexOf(currentCategory)
@@ -74,22 +81,41 @@ class CreateOrUpdateExpensesBottomSheet(
         }
 
 
+        btnDeleteOrUpdateExpenses.setOnClickListener {
+            if(expenses != null){
+                onDeleteClicked.invoke(expenses)
+                dismiss()
+            }else{
+                Log.d("CreateOrUpdateExpensesBottomSheet","Expenses not found")
+            }
+
+        }
 
 
-        btnCreateExpenses.setOnClickListener {
-            val number = edtExpensesNumber.text.toString()
+        btnCreateOrUpdateExpenses.setOnClickListener {
+            val number = edtExpensesNumber.text.toString().trim()
+            if (expensesCategory != null && number.isNotEmpty()) {
 
-            if (expensesCategory != null) {
-                onCreateClicked.invoke(
-                    ExpensesUiData(
-                        id = 0 ,
-                        name = number,
-                        category = requireNotNull(expensesCategory)
+                if (expenses == null){
+                    onCreateClicked.invoke(
+                        ExpensesUiData(
+                            id = 0 ,
+                            name = number,
+                            category = requireNotNull(expensesCategory)
+                        )
                     )
-                )
+                } else {
+                    onUpdateClicked.invoke(
+                        ExpensesUiData(
+                            id = expenses.id,
+                            name = number,
+                            category = requireNotNull(expensesCategory)
+                        )
+                    )
+                }
                 dismiss()
             } else {
-                Snackbar.make(btnCreateExpenses, "Please select a category", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(btnCreateOrUpdateExpenses, "Please select a category", Snackbar.LENGTH_LONG).show()
             }
 
 
