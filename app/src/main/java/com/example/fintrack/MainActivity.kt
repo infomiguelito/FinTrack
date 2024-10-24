@@ -51,6 +51,27 @@ class MainActivity : AppCompatActivity() {
             createExpensesUpdateBottomSheet(expenses)
         }
 
+        categoryAdapter.setOnLongClickListener { categoryToBeDelete ->
+
+            if (categoryToBeDelete.name != "+") {
+                val title: String = getString(R.string.title_info)
+                val description: String = getString(R.string.info_description)
+                val btnText: String = getString(R.string.delete)
+
+                showInfoDialog(
+                    title,
+                    description,
+                    btnText
+                ) {
+                    val categoryEntityToBeDelete = CategoryEntity(
+                        categoryToBeDelete.name,
+                        categoryToBeDelete.isSelected
+                    )
+                    deleteCategory(categoryEntityToBeDelete)
+                }
+            }
+        }
+
         categoryAdapter.setOnClickListener { selected ->
             if (selected.name == "+") {
                 val createCategoryBottomSheet = CreateCategoryBottomSheet { categoryName ->
@@ -99,6 +120,22 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
+    private fun showInfoDialog(
+        title: String,
+        description: String,
+        btnText: String,
+        onClick: () -> Unit
+    ) {
+        val infoBottomSheet = InfoBottomSheet(
+            title = title,
+            description = description,
+            btnText = btnText,
+            onClick = onClick
+        )
+        infoBottomSheet.show(supportFragmentManager, "infoBottomSheet")
+
+    }
 
     private fun getCategoriesFromDataBase() {
 
@@ -157,6 +194,7 @@ class MainActivity : AppCompatActivity() {
             getExpensesFromDataBase()
         }
     }
+
     private fun deleteExpenses(expensesEntity: ExpensesEntity) {
         GlobalScope.launch(Dispatchers.IO) {
             expensesDao.delete(expensesEntity)
@@ -164,12 +202,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun createExpensesUpdateBottomSheet(expensesUiData: ExpensesUiData? = null){
+    private fun deleteCategory(categoryEntity: CategoryEntity) {
+        GlobalScope.launch(Dispatchers.IO) {
+            categoryDao.delete(categoryEntity)
+            getCategoriesFromDataBase()
+        }
+    }
+
+    private fun createExpensesUpdateBottomSheet(expensesUiData: ExpensesUiData? = null) {
         val createExpensesBottomSheet = CreateOrUpdateExpensesBottomSheet(
             expenses = expensesUiData,
             categoryList = categories,
-            onCreateClicked = {
-                    expensesToBeCreate ->
+            onCreateClicked = { expensesToBeCreate ->
                 val ExpensesToBeInsert = ExpensesEntity(
                     name = expensesToBeCreate.name,
                     category = expensesToBeCreate.category
@@ -178,7 +222,7 @@ class MainActivity : AppCompatActivity() {
             },
             onUpdateClicked = { expensesToBeUpdate ->
                 val ExpensesToBeUpdateInsert = ExpensesEntity(
-                    id = expensesToBeUpdate.id ,
+                    id = expensesToBeUpdate.id,
                     name = expensesToBeUpdate.name,
                     category = expensesToBeUpdate.category
                 )
@@ -186,7 +230,7 @@ class MainActivity : AppCompatActivity() {
 
             }, onDeleteClicked = { expensesToBeDelete ->
                 val ExpensesToBeUpdateDelete = ExpensesEntity(
-                    id = expensesToBeDelete.id ,
+                    id = expensesToBeDelete.id,
                     name = expensesToBeDelete.name,
                     category = expensesToBeDelete.category
                 )

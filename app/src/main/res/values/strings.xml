@@ -9,4 +9,7 @@
     <string name="update_expenses">Update Expenses</string>
     <string name="update">Update</string>
     <string name="add_btn">Add</string>
+    <string name="title_info">Important</string>
+    <string name="info_description">Deleting the category, you will delete the expenses that are related, are you sure?</string>
+    <string name="delete">Delete</string>
 </resources>
