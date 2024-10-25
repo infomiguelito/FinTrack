@@ -19,7 +19,7 @@ class InfoBottomSheet(
     private val title : String,
     private val description : String,
     private val btnText : String,
-    private val onClick : () -> Unit
+    private val  onClicked : () ->Unit
 
 ) : BottomSheetDialogFragment() {
     override fun onCreateView(
@@ -33,12 +33,12 @@ class InfoBottomSheet(
         val Desc = view.findViewById<TextView>(R.id.tv_info_description)
         val btnDeleteCategory = view.findViewById<Button>(R.id.btn_delete_category)
 
-        tvTitle.setText(title)
-        Desc.setText(description)
-        btnDeleteCategory.setText(btnText)
+        tvTitle.text = title
+        Desc.text = description
+        btnDeleteCategory.text =btnText
 
         btnDeleteCategory.setOnClickListener {
-            onClick.invoke()
+            onClicked.invoke()
             dismiss()
         }
 

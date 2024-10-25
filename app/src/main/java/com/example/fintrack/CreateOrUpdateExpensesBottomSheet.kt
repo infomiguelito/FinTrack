@@ -75,7 +75,7 @@ class CreateOrUpdateExpensesBottomSheet(
             edtExpensesNumber.setText(expenses.name)
             btnDeleteOrUpdateExpenses.isVisible= true
 
-            val currentCategory = categoryList.first { it.name == expenses.category }
+            val currentCategory = categoryList.firstOrNull { it.name == expenses.category }
             val index = categoryList.indexOf(currentCategory)
             spinner.setSelection(index)
         }

@@ -54,9 +54,9 @@ class MainActivity : AppCompatActivity() {
         categoryAdapter.setOnLongClickListener { categoryToBeDelete ->
 
             if (categoryToBeDelete.name != "+") {
-                val title: String = getString(R.string.title_info)
-                val description: String = getString(R.string.info_description)
-                val btnText: String = getString(R.string.delete)
+                val title: String = this.getString(R.string.title_info)
+                val description: String = this.getString(R.string.info_description)
+                val btnText: String = this.getString(R.string.delete)
 
                 showInfoDialog(
                     title,
@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity() {
             title = title,
             description = description,
             btnText = btnText,
-            onClick = onClick
+            onClick
         )
         infoBottomSheet.show(supportFragmentManager, "infoBottomSheet")
 
@@ -204,8 +204,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun deleteCategory(categoryEntity: CategoryEntity) {
         GlobalScope.launch(Dispatchers.IO) {
+            val expensesToBeDelete = expensesDao.getAllByCategoryName(categoryEntity.name)
+            expensesDao.deleteAll(expensesToBeDelete)
             categoryDao.delete(categoryEntity)
             getCategoriesFromDataBase()
+            getExpensesFromDataBase()
         }
     }
 

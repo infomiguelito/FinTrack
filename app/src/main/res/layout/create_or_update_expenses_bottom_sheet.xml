@@ -3,8 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
@@ -67,7 +65,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:backgroundTint="@color/green_clear"
-        android:text="Delete"
+        android:text="@string/delete"
         android:textColor="@color/dark"
         app:layout_constraintEnd_toStartOf="@+id/vertical_guideline"
         app:layout_constraintStart_toStartOf="parent"
@@ -80,11 +78,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
         android:backgroundTint="@color/green_clear"
         android:text="@string/add_btn"
         android:textColor="@color/dark"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/edt_expenses_number"
         app:layout_constraintStart_toEndOf="@+id/btn_delete_or_update_expenses"
         app:layout_constraintTop_toBottomOf="@+id/edt_expenses_number" />
 

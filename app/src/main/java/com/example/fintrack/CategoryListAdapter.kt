@@ -46,7 +46,7 @@ class CategoryListAdapter :
             view.setOnClickListener {
                 onClick.invoke(category)
             }
-            view.setOnClickListener {
+            view.setOnLongClickListener {
                 OnLongClickListener.invoke(category)
                 true
             }
