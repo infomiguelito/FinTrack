@@ -7,6 +7,7 @@ import androidx.room.Room
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -86,21 +87,21 @@ class MainActivity : AppCompatActivity() {
             } else {
                 val categoryTemp = categories.map { item ->
                     when {
-                        item.name == selected.name && !item.isSelected -> item.copy(
+                        item.name == selected.name && item.isSelected -> item.copy(
                             isSelected = true
                         )
-
-                        item.name == selected.name && item.isSelected -> item.copy(isSelected = false)
+                        item.name == selected.name && !item.isSelected -> item.copy(isSelected = true)
+                        item.name != selected.name && item.isSelected -> item.copy(isSelected = false)
                         else -> item
                     }
                 }
-                val expensesTemp =
-                    if (selected.name != "ALL") {
-                        expenses.filter { it.category == selected.name }
+                    if (selected.name != "All") {
+                       filterExpenseByCategoryName(selected.name)
                     } else {
-                        expenses
+                        GlobalScope.launch(Dispatchers.IO){
+                            getExpensesFromDataBase()
+                        }
                     }
-                expensesAdapter.submitList(expensesTemp)
                 categoryAdapter.submitList(categoryTemp)
 
 
@@ -155,10 +156,19 @@ class MainActivity : AppCompatActivity() {
                 isSelected = false
             )
         )
+        val categoryListTemp = mutableListOf(
+            CategoryUiData(
+                name = "All",
+                isSelected = true
+            )
+        )
+
+        categoryListTemp.addAll(categoriesUiData)
+
         GlobalScope.launch(Dispatchers.IO) {
 
-            categories = categoriesUiData
-            categoryAdapter.submitList(categoriesUiData)
+            categories = categoryListTemp
+            categoryAdapter.submitList(categories)
         }
 
 
@@ -166,14 +176,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun getExpensesFromDataBase() {
         val expensesFromDb: List<ExpensesEntity> = expensesDao.getAll()
-        val expensesUiData = expensesFromDb.map {
+        val expensesUiData : List<ExpensesUiData> = expensesFromDb.map {
             ExpensesUiData(
                 id = it.id,
                 category = it.category,
                 name = it.name
             )
         }
-        GlobalScope.launch(Dispatchers.IO) {
+        GlobalScope.launch(Dispatchers.Main) {
             expenses = expensesUiData
             expensesAdapter.submitList(expensesUiData)
         }
@@ -209,6 +219,23 @@ class MainActivity : AppCompatActivity() {
             categoryDao.delete(categoryEntity)
             getCategoriesFromDataBase()
             getExpensesFromDataBase()
+        }
+    }
+
+    private fun filterExpenseByCategoryName(category : String){
+        GlobalScope.launch(Dispatchers.IO){
+            val expensesFromDb: List<ExpensesEntity> = expensesDao.getAllByCategoryName(category)
+            val expensesUiData : List<ExpensesUiData> = expensesFromDb.map {
+                ExpensesUiData(
+                    id = it.id,
+                    category = it.category,
+                    name = it.name
+                )
+            }
+            GlobalScope.launch(Dispatchers.Main) {
+                expenses = expensesUiData
+                expensesAdapter.submitList(expensesUiData)
+            }
         }
     }
 
