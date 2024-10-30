@@ -16,7 +16,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 
 class CreateOrUpdateExpensesBottomSheet(
-    private val categoryList: List<CategoryUiData>,
+    private val categoryList: List<CategoryEntity>,
     private val expenses:ExpensesUiData ? = null,
     private val onCreateClicked: (ExpensesUiData) -> Unit,
     private val onUpdateClicked: (ExpensesUiData) -> Unit,
@@ -30,14 +30,18 @@ class CreateOrUpdateExpensesBottomSheet(
     ): View? {
         val view = inflater.inflate(R.layout.create_or_update_expenses_bottom_sheet, container, false)
 
-        var expensesCategory: String? = null
-        val categoryStr :List<String> = categoryList.map{it . name}
+
 
 
         val tvTitle = view.findViewById<TextView>(R.id.tv_title_expenses)
         val btnCreateOrUpdateExpenses = view.findViewById<Button>(R.id.btn_create_or_update_expenses)
         val btnDeleteOrUpdateExpenses = view.findViewById<Button>(R.id.btn_delete_or_update_expenses)
         val edtExpensesNumber = view.findViewById<EditText>(R.id.edt_expenses_number)
+
+        var expensesCategory: String? = null
+        val categoryListTemp = mutableListOf("Select")
+        categoryListTemp.addAll(categoryList.map{it . name})
+        val categoryStr :List<String> = categoryListTemp
 
         val spinner: Spinner = view.findViewById(R.id.category_list)
         ArrayAdapter(
@@ -94,7 +98,7 @@ class CreateOrUpdateExpensesBottomSheet(
 
         btnCreateOrUpdateExpenses.setOnClickListener {
             val number = edtExpensesNumber.text.toString().trim()
-            if (expensesCategory != null && number.isNotEmpty()) {
+            if (expensesCategory != "Select" && number.isNotEmpty()) {
 
                 if (expenses == null){
                     onCreateClicked.invoke(

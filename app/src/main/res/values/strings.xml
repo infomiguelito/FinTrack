@@ -12,4 +12,6 @@
     <string name="title_info">Important</string>
     <string name="info_description">Deleting the category, you will delete the expenses that are related, are you sure?</string>
     <string name="delete">Delete</string>
+    <string name="empty_fin_track">No category created</string>
+    <string name="empty_fin_track_description">Add a new category</string>
 </resources>
