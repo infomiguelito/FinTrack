@@ -228,7 +228,7 @@ class MainActivity : AppCompatActivity() {
             ExpensesUiData(
                 id = it.id,
                 category = it.category,
-                name = it.name
+                name = it.number
             )
         }
         GlobalScope.launch(Dispatchers.Main) {
@@ -277,7 +277,7 @@ class MainActivity : AppCompatActivity() {
                 ExpensesUiData(
                     id = it.id,
                     category = it.category,
-                    name = it.name
+                    name = it.number
                 )
             }
             GlobalScope.launch(Dispatchers.Main) {
@@ -293,7 +293,7 @@ class MainActivity : AppCompatActivity() {
             categoryList = categoriesEntity,
             onCreateClicked = { expensesToBeCreate ->
                 val ExpensesToBeInsert = ExpensesEntity(
-                    name = expensesToBeCreate.name,
+                    number = expensesToBeCreate.name,
                     category = expensesToBeCreate.category
                 )
                 insertExpenses(ExpensesToBeInsert)
@@ -301,7 +301,7 @@ class MainActivity : AppCompatActivity() {
             onUpdateClicked = { expensesToBeUpdate ->
                 val ExpensesToBeUpdateInsert = ExpensesEntity(
                     id = expensesToBeUpdate.id,
-                    name = expensesToBeUpdate.name,
+                    number = expensesToBeUpdate.name,
                     category = expensesToBeUpdate.category
                 )
                 insertExpenses(ExpensesToBeUpdateInsert)
@@ -309,7 +309,7 @@ class MainActivity : AppCompatActivity() {
             }, onDeleteClicked = { expensesToBeDelete ->
                 val ExpensesToBeUpdateDelete = ExpensesEntity(
                     id = expensesToBeDelete.id,
-                    name = expensesToBeDelete.name,
+                    number = expensesToBeDelete.name,
                     category = expensesToBeDelete.category
                 )
                 deleteExpenses(ExpensesToBeUpdateDelete)

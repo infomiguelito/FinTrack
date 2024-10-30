@@ -17,5 +17,5 @@ data class ExpensesEntity(
     @PrimaryKey(autoGenerate = true)
     val id : Long = 0,
     val category: String,
-    val name:String
+    val number:String
 )
