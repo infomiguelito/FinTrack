@@ -3,7 +3,6 @@ package com.example.fintrack
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ExpandableListAdapter
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -32,7 +31,7 @@ class ExpensesListAdapter:
 
         fun bind(expenses: ExpensesUiData , callback: (ExpensesUiData) ->Unit) {
             tvCategory.text = expenses.category
-            tvTask.text = expenses.name
+            tvTask.text = expenses.number
 
             view.setOnClickListener {
                 callback.invoke(expenses)
@@ -44,7 +43,7 @@ class ExpensesListAdapter:
             return oldItem == newItem
         }
         override fun areContentsTheSame(oldItem: ExpensesUiData, newItem: ExpensesUiData): Boolean {
-            return oldItem.name == newItem.name
+            return oldItem.number == newItem.number
         }
     }
 }

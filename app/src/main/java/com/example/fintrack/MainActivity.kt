@@ -3,19 +3,19 @@ package com.example.fintrack
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : AppCompatActivity() {
@@ -57,8 +57,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.statusBarColor = Color.TRANSPARENT
-            window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            window.decorView
         }
 
 
@@ -69,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         ctnEmptyView = findViewById(R.id.ll_empty_fin_track)
         fabCreateExpenses = findViewById(R.id.fab_create_expense)
         tvCategoryExpenses = findViewById(R.id.tv_category_expense)
-        tvExpensesTotals = findViewById(R.id.tv_expenses_totals)
+        tvExpensesTotals = findViewById(R.id.tv_title_expenses_totals)
         tvValueExpenses = findViewById(R.id.value_expenses)
         val rvListExpense = findViewById<RecyclerView>(R.id.rv_list_expense)
         val btnAddCategory = findViewById<Button>(R.id.btn_add_empty_category)
@@ -85,6 +84,8 @@ class MainActivity : AppCompatActivity() {
         expensesAdapter.setOnClickListener { expenses ->
             createExpensesUpdateBottomSheet(expenses)
         }
+
+        updateTotalValue()
 
         categoryAdapter.setOnLongClickListener { categoryToBeDelete ->
 
@@ -138,10 +139,7 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             getCategoriesFromDataBase()
         }
-
         rvListExpense.adapter = expensesAdapter
-
-
         GlobalScope.launch(Dispatchers.IO) {
             getExpensesFromDataBase()
         }
@@ -228,7 +226,7 @@ class MainActivity : AppCompatActivity() {
             ExpensesUiData(
                 id = it.id,
                 category = it.category,
-                name = it.number
+                number = it.number
             )
         }
         GlobalScope.launch(Dispatchers.Main) {
@@ -277,7 +275,7 @@ class MainActivity : AppCompatActivity() {
                 ExpensesUiData(
                     id = it.id,
                     category = it.category,
-                    name = it.number
+                    number = it.number
                 )
             }
             GlobalScope.launch(Dispatchers.Main) {
@@ -293,7 +291,7 @@ class MainActivity : AppCompatActivity() {
             categoryList = categoriesEntity,
             onCreateClicked = { expensesToBeCreate ->
                 val ExpensesToBeInsert = ExpensesEntity(
-                    number = expensesToBeCreate.name,
+                    number = expensesToBeCreate.number,
                     category = expensesToBeCreate.category
                 )
                 insertExpenses(ExpensesToBeInsert)
@@ -301,7 +299,7 @@ class MainActivity : AppCompatActivity() {
             onUpdateClicked = { expensesToBeUpdate ->
                 val ExpensesToBeUpdateInsert = ExpensesEntity(
                     id = expensesToBeUpdate.id,
-                    number = expensesToBeUpdate.name,
+                    number = expensesToBeUpdate.number,
                     category = expensesToBeUpdate.category
                 )
                 insertExpenses(ExpensesToBeUpdateInsert)
@@ -309,7 +307,7 @@ class MainActivity : AppCompatActivity() {
             }, onDeleteClicked = { expensesToBeDelete ->
                 val ExpensesToBeUpdateDelete = ExpensesEntity(
                     id = expensesToBeDelete.id,
-                    number = expensesToBeDelete.name,
+                    number = expensesToBeDelete.number,
                     category = expensesToBeDelete.category
                 )
                 deleteExpenses(ExpensesToBeUpdateDelete)
@@ -331,7 +329,17 @@ class MainActivity : AppCompatActivity() {
         createCategoryBottomSheet.show(supportFragmentManager, "createCategoryBottomSheet")
     }
 
+    private fun updateTotalValue() {
+        lifecycleScope.launch {
+            val totalValue = withContext(Dispatchers.IO) {
+                expensesDao.getTotalValor()
+            }
+            tvValueExpenses.text = "R$$totalValue" // Atualize o TextView na thread principal
+        }
+    }
+
 }
+
 
 
 

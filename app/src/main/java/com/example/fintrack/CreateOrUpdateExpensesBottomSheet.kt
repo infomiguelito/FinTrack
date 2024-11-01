@@ -76,7 +76,7 @@ class CreateOrUpdateExpensesBottomSheet(
         } else {
             tvTitle.setText(R.string.update_expenses)
             btnCreateOrUpdateExpenses.setText(R.string.update)
-            edtExpensesNumber.setText(expenses.name)
+            edtExpensesNumber.setText(expenses.number)
             btnDeleteOrUpdateExpenses.isVisible= true
 
             val currentCategory = categoryList.firstOrNull { it.name == expenses.category }
@@ -97,14 +97,16 @@ class CreateOrUpdateExpensesBottomSheet(
 
 
         btnCreateOrUpdateExpenses.setOnClickListener {
+
             val number = edtExpensesNumber.text.toString().trim()
+
             if (expensesCategory != "Select" && number.isNotEmpty()) {
 
                 if (expenses == null){
                     onCreateClicked.invoke(
                         ExpensesUiData(
                             id = 0 ,
-                            name = number,
+                            number = number,
                             category = requireNotNull(expensesCategory)
                         )
                     )
@@ -112,7 +114,7 @@ class CreateOrUpdateExpensesBottomSheet(
                     onUpdateClicked.invoke(
                         ExpensesUiData(
                             id = expenses.id,
-                            name = number,
+                            number = number,
                             category = requireNotNull(expensesCategory)
                         )
                     )

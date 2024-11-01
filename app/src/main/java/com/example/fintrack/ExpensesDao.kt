@@ -9,7 +9,11 @@ import androidx.room.Query
 @Dao
 interface ExpensesDao {
     @Query("Select * From expensesentity")
-    fun getAll() : List<ExpensesEntity>
+    fun getAll(): List<ExpensesEntity>
+
+
+    @Query("SELECT SUM(number) FROM ExpensesEntity")
+    fun getTotalValor(): Double
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(expensesEntity: List<ExpensesEntity>)
@@ -18,13 +22,13 @@ interface ExpensesDao {
     fun insertOrUpdate(expensesEntity: ExpensesEntity)
 
     @Delete
-    fun delete (expensesEntity: ExpensesEntity)
+    fun delete(expensesEntity: ExpensesEntity)
 
     @Query("Select * From expensesentity where category is :categoryName")
-    fun getAllByCategoryName(categoryName : String) : List<ExpensesEntity>
+    fun getAllByCategoryName(categoryName: String): List<ExpensesEntity>
 
 
     @Delete
-    fun deleteAll (expensesEntity: List<ExpensesEntity>)
+    fun deleteAll(expensesEntity: List<ExpensesEntity>)
 
 }
