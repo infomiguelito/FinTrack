@@ -16,10 +16,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 
 class InfoBottomSheet(
-    private val title : String,
-    private val description : String,
-    private val btnText : String,
-    private val  onClicked : () ->Unit
+    private val title: String,
+    private val description: String,
+    private val btnText: String,
+    private val onClicked: () -> Unit
 
 ) : BottomSheetDialogFragment() {
     override fun onCreateView(
@@ -35,7 +35,7 @@ class InfoBottomSheet(
 
         tvTitle.text = title
         Desc.text = description
-        btnDeleteCategory.text =btnText
+        btnDeleteCategory.text = btnText
 
         btnDeleteCategory.setOnClickListener {
             onClicked.invoke()

@@ -1,8 +1,10 @@
 package com.example.fintrack
 
 import android.graphics.Color
+import android.graphics.Color.TRANSPARENT
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -16,10 +18,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.NumberFormat
+import java.util.Locale
 
 
 class MainActivity : AppCompatActivity() {
-
 
     private var categories = listOf<CategoryUiData>()
     private var categoriesEntity = listOf<CategoryEntity>()
@@ -36,7 +39,6 @@ class MainActivity : AppCompatActivity() {
     private val expensesAdapter by lazy {
         ExpensesListAdapter()
     }
-
 
     private val db by lazy {
         Room.databaseBuilder(
@@ -57,12 +59,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.statusBarColor = Color.TRANSPARENT
-            window.decorView
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         }
 
-
         setContentView(R.layout.activity_main)
-
 
         rvListCategory = findViewById(R.id.rv_list_category)
         ctnEmptyView = findViewById(R.id.ll_empty_fin_track)
@@ -72,6 +73,8 @@ class MainActivity : AppCompatActivity() {
         tvValueExpenses = findViewById(R.id.value_expenses)
         val rvListExpense = findViewById<RecyclerView>(R.id.rv_list_expense)
         val btnAddCategory = findViewById<Button>(R.id.btn_add_empty_category)
+
+        updateTotalValue()
 
         btnAddCategory.setOnClickListener {
             showCreateCategoryBottomSheet()
@@ -83,9 +86,8 @@ class MainActivity : AppCompatActivity() {
 
         expensesAdapter.setOnClickListener { expenses ->
             createExpensesUpdateBottomSheet(expenses)
-        }
 
-        updateTotalValue()
+        }
 
         categoryAdapter.setOnLongClickListener { categoryToBeDelete ->
 
@@ -101,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     val categoryEntityToBeDelete = CategoryEntity(
                         categoryToBeDelete.name,
-                        categoryToBeDelete.isSelected
+                        categoryToBeDelete.isSelected,
                     )
                     deleteCategory(categoryEntityToBeDelete)
                 }
@@ -132,7 +134,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 categoryAdapter.submitList(categoryTemp)
 
-
             }
         }
         rvListCategory.adapter = categoryAdapter
@@ -145,7 +146,6 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-
 
     private fun showInfoDialog(
         title: String,
@@ -168,8 +168,8 @@ class MainActivity : AppCompatActivity() {
         val categoriesFromDb: List<CategoryEntity> = categoryDao.getAll()
         categoriesEntity = categoriesFromDb
 
-        GlobalScope.launch (Dispatchers.Main){
-            if (categoriesEntity.isEmpty()){
+        GlobalScope.launch(Dispatchers.Main) {
+            if (categoriesEntity.isEmpty()) {
                 rvListCategory.isVisible = false
                 fabCreateExpenses.isVisible = false
                 tvValueExpenses.isVisible = false
@@ -190,7 +190,7 @@ class MainActivity : AppCompatActivity() {
         val categoriesUiData = categoriesFromDb.map {
             CategoryUiData(
                 name = it.name,
-                isSelected = it.isSelected
+                isSelected = it.isSelected,
             )
 
         }
@@ -216,8 +216,6 @@ class MainActivity : AppCompatActivity() {
             categories = categoryListTemp
             categoryAdapter.submitList(categories)
         }
-
-
     }
 
     private fun getExpensesFromDataBase() {
@@ -237,7 +235,6 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun insertCategory(categoryEntity: CategoryEntity) {
-
         GlobalScope.launch(Dispatchers.IO) {
             categoryDao.inset(categoryEntity)
             getCategoriesFromDataBase()
@@ -247,6 +244,7 @@ class MainActivity : AppCompatActivity() {
     private fun insertExpenses(expensesEntity: ExpensesEntity) {
         GlobalScope.launch(Dispatchers.IO) {
             expensesDao.insertOrUpdate(expensesEntity)
+            updateTotalValue()
             getExpensesFromDataBase()
         }
     }
@@ -254,6 +252,7 @@ class MainActivity : AppCompatActivity() {
     private fun deleteExpenses(expensesEntity: ExpensesEntity) {
         GlobalScope.launch(Dispatchers.IO) {
             expensesDao.delete(expensesEntity)
+            updateTotalValue()
             getExpensesFromDataBase()
         }
     }
@@ -263,6 +262,7 @@ class MainActivity : AppCompatActivity() {
             val expensesToBeDelete = expensesDao.getAllByCategoryName(categoryEntity.name)
             expensesDao.deleteAll(expensesToBeDelete)
             categoryDao.delete(categoryEntity)
+            updateTotalValue()
             getCategoriesFromDataBase()
             getExpensesFromDataBase()
         }
@@ -303,22 +303,20 @@ class MainActivity : AppCompatActivity() {
                     category = expensesToBeUpdate.category
                 )
                 insertExpenses(ExpensesToBeUpdateInsert)
-
-            }, onDeleteClicked = { expensesToBeDelete ->
+            },
+            onDeleteClicked = { expensesToBeDelete ->
                 val ExpensesToBeUpdateDelete = ExpensesEntity(
                     id = expensesToBeDelete.id,
                     number = expensesToBeDelete.number,
                     category = expensesToBeDelete.category
                 )
                 deleteExpenses(ExpensesToBeUpdateDelete)
-
             }
-
         )
         createExpensesBottomSheet.show(supportFragmentManager, "createExpensesBottomSheet")
     }
 
-    private fun showCreateCategoryBottomSheet(){
+    private fun showCreateCategoryBottomSheet() {
         val createCategoryBottomSheet = CreateCategoryBottomSheet { categoryName ->
             val categoryEntity = CategoryEntity(
                 name = categoryName,
@@ -330,14 +328,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateTotalValue() {
-        lifecycleScope.launch {
+        GlobalScope.launch(Dispatchers.Main) {
             val totalValue = withContext(Dispatchers.IO) {
                 expensesDao.getTotalValor()
             }
-            tvValueExpenses.text = "R$$totalValue" // Atualize o TextView na thread principal
+            val numberFormat = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
+            val formattedValue = numberFormat.format(totalValue)
+            tvValueExpenses.text = "$formattedValue"
         }
     }
-
 }
 
 

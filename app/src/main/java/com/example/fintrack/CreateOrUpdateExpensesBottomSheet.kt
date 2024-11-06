@@ -17,31 +17,32 @@ import com.google.android.material.snackbar.Snackbar
 
 class CreateOrUpdateExpensesBottomSheet(
     private val categoryList: List<CategoryEntity>,
-    private val expenses:ExpensesUiData ? = null,
+    private val expenses: ExpensesUiData? = null,
     private val onCreateClicked: (ExpensesUiData) -> Unit,
     private val onUpdateClicked: (ExpensesUiData) -> Unit,
     private val onDeleteClicked: (ExpensesUiData) -> Unit,
 
-) : BottomSheetDialogFragment() {
+    ) : BottomSheetDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.create_or_update_expenses_bottom_sheet, container, false)
-
-
+        val view =
+            inflater.inflate(R.layout.create_or_update_expenses_bottom_sheet, container, false)
 
 
         val tvTitle = view.findViewById<TextView>(R.id.tv_title_expenses)
-        val btnCreateOrUpdateExpenses = view.findViewById<Button>(R.id.btn_create_or_update_expenses)
-        val btnDeleteOrUpdateExpenses = view.findViewById<Button>(R.id.btn_delete_or_update_expenses)
+        val btnCreateOrUpdateExpenses =
+            view.findViewById<Button>(R.id.btn_create_or_update_expenses)
+        val btnDeleteOrUpdateExpenses =
+            view.findViewById<Button>(R.id.btn_delete_or_update_expenses)
         val edtExpensesNumber = view.findViewById<EditText>(R.id.edt_expenses_number)
 
         var expensesCategory: String? = null
         val categoryListTemp = mutableListOf("Select")
-        categoryListTemp.addAll(categoryList.map{it . name})
-        val categoryStr :List<String> = categoryListTemp
+        categoryListTemp.addAll(categoryList.map { it.name })
+        val categoryStr: List<String> = categoryListTemp
 
         val spinner: Spinner = view.findViewById(R.id.category_list)
         ArrayAdapter(
@@ -52,16 +53,16 @@ class CreateOrUpdateExpensesBottomSheet(
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_item)
             spinner.adapter = adapter
         }
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
                 position: Int,
-                id: Long) {
+                id: Long
+            ) {
 
                 expensesCategory = categoryStr[position]
             }
-
 
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -69,15 +70,15 @@ class CreateOrUpdateExpensesBottomSheet(
 
         }
 
-        if (expenses == null ){
-            btnDeleteOrUpdateExpenses.isVisible= false
+        if (expenses == null) {
+            btnDeleteOrUpdateExpenses.isVisible = false
             tvTitle.setText(R.string.insert_expenses)
             btnCreateOrUpdateExpenses.setText(R.string.add_btn)
         } else {
             tvTitle.setText(R.string.update_expenses)
             btnCreateOrUpdateExpenses.setText(R.string.update)
             edtExpensesNumber.setText(expenses.number)
-            btnDeleteOrUpdateExpenses.isVisible= true
+            btnDeleteOrUpdateExpenses.isVisible = true
 
             val currentCategory = categoryList.firstOrNull { it.name == expenses.category }
             val index = categoryList.indexOf(currentCategory)
@@ -86,11 +87,11 @@ class CreateOrUpdateExpensesBottomSheet(
 
 
         btnDeleteOrUpdateExpenses.setOnClickListener {
-            if(expenses != null){
+            if (expenses != null) {
                 onDeleteClicked.invoke(expenses)
                 dismiss()
-            }else{
-                Log.d("CreateOrUpdateExpensesBottomSheet","Expenses not found")
+            } else {
+                Log.d("CreateOrUpdateExpensesBottomSheet", "Expenses not found")
             }
 
         }
@@ -102,10 +103,10 @@ class CreateOrUpdateExpensesBottomSheet(
 
             if (expensesCategory != "Select" && number.isNotEmpty()) {
 
-                if (expenses == null){
+                if (expenses == null) {
                     onCreateClicked.invoke(
                         ExpensesUiData(
-                            id = 0 ,
+                            id = 0,
                             number = number,
                             category = requireNotNull(expensesCategory)
                         )
@@ -121,14 +122,15 @@ class CreateOrUpdateExpensesBottomSheet(
                 }
                 dismiss()
             } else {
-                Snackbar.make(btnCreateOrUpdateExpenses, "Please select a category", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(
+                    btnCreateOrUpdateExpenses,
+                    "Please select a category",
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
 
 
         }
-
-
-
         return view
     }
 }
