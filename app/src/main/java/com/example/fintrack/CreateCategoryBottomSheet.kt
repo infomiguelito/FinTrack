@@ -8,7 +8,8 @@ import android.widget.Button
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputEditText
 
-class CreateCategoryBottomSheet(private val onCreateClicked: (String) -> Unit) : BottomSheetDialogFragment() {
+class CreateCategoryBottomSheet(private val onCreateClicked: (String) -> Unit) :
+    BottomSheetDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

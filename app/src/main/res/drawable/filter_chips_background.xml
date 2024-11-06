@@ -15,9 +15,12 @@
     <shape android:shape="rectangle">
         <corners android:radius="24dp" />
 
+        <color android:color="@color/green"/>
+
         <stroke android:width="2dp" android:color="@color/green" />
     </shape>
-    <color android:color="@color/green"/>
-    </shape>
+
+
+
 </item>
 </selector>

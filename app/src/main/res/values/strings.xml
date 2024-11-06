@@ -2,11 +2,16 @@
     <string name="app_name">FinTrack</string>
     <string name="FinTrack">FinTrack</string>
     <string name="expenses_totals">Expenses Totals</string>
-    <string name="category_expense">Category expense</string>
+    <string name="category_expense">Category Expense</string>
     <string name="criar_categoria">Create category</string>
     <string name="category_hint">Enter the category</string>
     <string name="insert_expenses">Add expenses</string>
     <string name="update_expenses">Update Expenses</string>
     <string name="update">Update</string>
     <string name="add_btn">Add</string>
+    <string name="title_info">Important</string>
+    <string name="info_description">Deleting the category, you will delete the expenses that are related, are you sure?</string>
+    <string name="delete">Delete</string>
+    <string name="empty_fin_track">No category created</string>
+    <string name="empty_fin_track_description">Add a new category</string>
 </resources>

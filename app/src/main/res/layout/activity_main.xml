@@ -7,25 +7,36 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/gray">
+
+    </RelativeLayout>
+
+
 
     <TextView
         android:id="@+id/tv_title"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:textColor="@color/white"
+        android:text="@string/app_name"
         android:textSize="23sp"
         android:textStyle="bold"
-        android:layout_height="wrap_content"
-        android:text="@string/app_name"
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/expenses_totals"
+        android:id="@+id/tv_title_expenses_totals"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        tools:text="@string/expenses_totals"
+        android:text="@string/expenses_totals"
+        android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
@@ -35,22 +46,24 @@
     <TextView
         android:id="@+id/value_expenses"
         android:layout_width="match_parent"
+        android:textColor="@color/white"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/expenses_totals"
-        tools:text="R$ 324.41" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_expenses_totals"
+        android:text="R$ 324.41" />
 
     <TextView
-        android:textSize="24sp"
-        android:layout_margin="16dp"
-        android:id="@+id/category_expense"
+        android:id="@+id/tv_category_expense"
         android:layout_width="match_parent"
+        android:textColor="@color/white"
         android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:text="@string/category_expense"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/value_expenses" />
@@ -63,10 +76,9 @@
         android:orientation="horizontal"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/category_expense"
-        app:layout_constraintTop_toBottomOf="@+id/category_expense"
+        app:layout_constraintStart_toStartOf="@+id/tv_category_expense"
+        app:layout_constraintTop_toBottomOf="@+id/tv_category_expense"
         tools:listitem="@layout/item_list_category">
-
 
 
     </androidx.recyclerview.widget.RecyclerView>
@@ -90,12 +102,52 @@
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="31dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/ic_dialog_dialer"
         app:tint="@color/green" />
+
+    <LinearLayout
+        android:id="@+id/ll_empty_fin_track"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:text="@string/empty_fin_track"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:text="@string/empty_fin_track_description"
+            android:textSize="18sp" />
+
+        <ImageView
+            android:layout_width="300dp"
+            android:layout_height="250dp"
+            android:src="@drawable/ic_fin_track" />
+
+        <Button
+            android:id="@+id/btn_add_empty_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:backgroundTint="@color/green_clear"
+            android:text="Add"
+            android:textColor="@color/dark" />
+
+    </LinearLayout>
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -103,9 +155,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        android:backgroundTint="@color/green"
         android:src="@drawable/ic_baseline_add_24"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:backgroundTint="@color/green"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
